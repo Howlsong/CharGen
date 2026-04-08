@@ -1,17 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>CharGen</title>
-</head>
 <body>
 
-<button onclick="generateText()">Click me</button>
+<button onclick="generateCharacter()">Generate</button>
 
-<p id="output"></p>
+<pre id="output"></pre>
 
 <script>
-function generateText() {
-    document.getElementById("output").textContent = "Hello from your site!";
+function genStat() {
+    // example: 4d6 drop lowest
+    let rolls = Array.from({length:4}, () => Math.floor(Math.random()*6)+1);
+    rolls.sort((a,b)=>a-b);
+    return rolls.slice(1).reduce((a,b)=>a+b,0);
+}
+
+function generateCharacter() {
+    let stats = {
+        str: genStat(),
+        dex: genStat(),
+        con: genStat(),
+        int: genStat(),
+        wis: genStat(),
+        cha: genStat()
+    };
+
+    let sorted = Object.entries(stats).sort((a,b)=>b[1]-a[1]);
+
+    let output = "";
+    output += JSON.stringify(stats, null, 2) + "\n\n";
+    output += "Top stats: " + sorted[0][0] + ", " + sorted[1][0];
+
+    document.getElementById("output").textContent = output;
 }
 </script>
 
