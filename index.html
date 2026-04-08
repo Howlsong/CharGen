@@ -4,7 +4,28 @@
 
 <button onclick="generateCharacter()">Generate Character</button>
 
-<pre id="output"></pre>
+<h2>Character Sheet</h2>
+
+<table border="1" cellpadding="5">
+  <tr>
+    <th>Stat</th>
+    <th>Value</th>
+    <th>Modifier</th>
+  </tr>
+  <tr><td>STR</td><td id="str"></td><td id="mod-str"></td></tr>
+  <tr><td>DEX</td><td id="dex"></td><td id="mod-dex"></td></tr>
+  <tr><td>CON</td><td id="con"></td><td id="mod-con"></td></tr>
+  <tr><td>INT</td><td id="int"></td><td id="mod-int"></td></tr>
+  <tr><td>WIS</td><td id="wis"></td><td id="mod-wis"></td></tr>
+  <tr><td>CHA</td><td id="cha"></td><td id="mod-cha"></td></tr>
+</table>
+
+<p>Class: <span id="class"></span></p>
+<p>Race: <span id="race"></span></p>
+<p>Other Info:</p>
+<ul id="char-info"></ul>
+<p>Suggested Names:</p>
+<ul id="names"></ul>
 
 <script>
 // === replacements for your modules (TEMP placeholders) ===
@@ -208,54 +229,55 @@ function gen_info(dnd_class, race="Human") {
     };
 }
 
-// === your logic ===
 function generateCharacter() {
-
+    // Generate stats
     let stats_list = ["str","dex","con","int","wis","cha"];
-    let stats_values = [];
-
-    for (let i = 0; i < 6; i++) {
-        let b = gen_stat();
-        stats_values.push(b);
-    }
-
+    let stats_values = stats_list.map(() => gen_stat());
     let [str, dex, con, int_, wis, cha] = stats_values;
 
-    let output = "";
+    // Fill table values
+    document.getElementById("str").textContent = str;
+    document.getElementById("dex").textContent = dex;
+    document.getElementById("con").textContent = con;
+    document.getElementById("int").textContent = int_;
+    document.getElementById("wis").textContent = wis;
+    document.getElementById("cha").textContent = cha;
 
-    output += "str dex con int wis cha\n";
-    output += `${str} ${dex} ${con} ${int_} ${wis} ${cha}\n`;
+    document.getElementById("mod-str").textContent = Math.floor((str-10)/2);
+    document.getElementById("mod-dex").textContent = Math.floor((dex-10)/2);
+    document.getElementById("mod-con").textContent = Math.floor((con-10)/2);
+    document.getElementById("mod-int").textContent = Math.floor((int_-10)/2);
+    document.getElementById("mod-wis").textContent = Math.floor((wis-10)/2);
+    document.getElementById("mod-cha").textContent = Math.floor((cha-10)/2);
 
-    output += `${Math.floor((str-10)/2)} `
-           + `${Math.floor((dex-10)/2)} `
-           + `${Math.floor((con-10)/2)} `
-           + `${Math.floor((int_-10)/2)} `
-           + `${Math.floor((wis-10)/2)} `
-           + `${Math.floor((cha-10)/2)}\n\n`;
-
+    // Determine class and race
     let stats = {str, dex, con, int: int_, wis, cha};
-
-    let sorted_stats = Object.entries(stats)
-        .sort((a,b)=>b[1]-a[1]);
-
-    let stat1 = sorted_stats[0];
-    let stat2 = sorted_stats[1];
-
+    let sorted_stats = Object.entries(stats).sort((a,b)=>b[1]-a[1]);
+    let [stat1, stat2] = sorted_stats;
     let charClass = choose_class(stat1, stat2);
-
-    output += `${charClass} ${JSON.stringify(stat1)} ${JSON.stringify(stat2)}\n`;
-
     let race = choose_race(charClass);
-    output += race + "\n";
 
+    document.getElementById("class").textContent = charClass;
+    document.getElementById("race").textContent = race;
+
+    // Fill other info
     let char_info = gen_info(charClass, race);
+    const infoList = document.getElementById("char-info");
+    infoList.innerHTML = "";
     for (let key in char_info) {
-        output += `${key}: ${char_info[key]}\n`;
+        let li = document.createElement("li");
+        li.textContent = `${key}: ${char_info[key]}`;
+        infoList.appendChild(li);
     }
 
-    output += gen_names(4).join(" ");
-
-    document.getElementById("output").textContent = output;
+    // Suggested names
+    const namesList = document.getElementById("names");
+    namesList.innerHTML = "";
+    gen_names(4).forEach(name => {
+        let li = document.createElement("li");
+        li.textContent = name;
+        namesList.appendChild(li);
+    });
 }
 </script>
 
