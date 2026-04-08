@@ -40,32 +40,32 @@ function gen_stat() {
 }
 
 function choose_class(stat1, stat2) {
-    // stat1 = ["str", 18], stat2 = ["dex", 16]
-    let top_stat = stat1[0];
-    let second_stat = stat2[0];
+    const primary = stat1[0];
+    const secondary = stat2[0];
 
-    const class_choices = {
-        "str,con": "Barbarian",
-        "str,dex": "Fighter",
-        "str,wis": "Cleric",
-        "str,cha": "Paladin",
-        "str,int": "Paladin",
-        "dex,int": "Rogue",
-        "dex,wis": "Monk",
-        "dex,cha": "Bard",
-        "dex,con": "Rogue",
-        "int,wis": "Wizard",
-        "int,cha": "Warlock",
-        "int,con": "Sorcerer",
-        "wis,cha": "Druid",
-        "wis,con": "Cleric",
-        "cha,con": "Bard",
+    // Classes typically associated with each stat
+    const stat_classes = {
+        "str": ["Barbarian", "Fighter", "Paladin"],
+        "dex": ["Rogue", "Monk", "Fighter"],
+        "con": ["Barbarian", "Fighter", "Paladin"],
+        "int": ["Wizard", "Artificer", "Warlock"],
+        "wis": ["Cleric", "Druid", "Ranger", "Monk"],
+        "cha": ["Bard", "Paladin", "Sorcerer", "Warlock"]
     };
 
-    // normalize order (this replaces your double .get())
-    let key = [top_stat, second_stat].sort().join(",");
+    // Start with classes associated with primary stat
+    let candidates = stat_classes[primary] ? [...stat_classes[primary]] : ["Fighter"];
 
-    return class_choices[key] || "Fighter";
+    // Narrow based on secondary stat: keep classes also favored by secondary stat
+    if (stat_classes[secondary]) {
+        candidates = candidates.filter(c => stat_classes[secondary].includes(c));
+    }
+
+    // If no overlap, fallback to just primary stat candidates
+    if (candidates.length === 0) candidates = stat_classes[primary];
+
+    // Pick one randomly
+    return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
 function choose_race(dnd_class) {
